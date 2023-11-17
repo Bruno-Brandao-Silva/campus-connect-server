@@ -23,7 +23,7 @@ export async function ConnectToDb(): Promise<{ client: MongoClient; bucket: Grid
   }
 }
 
-export async function FileExists({ client, filename }: { client: MongoClient, filename: string }): Promise<boolean> {
+export async function FileExistsByName({ client, filename }: { client: MongoClient, filename: string }): Promise<boolean> {
   try {
     const count = await client
       .db()
@@ -37,4 +37,16 @@ export async function FileExists({ client, filename }: { client: MongoClient, fi
   }
 }
 
+export async function FileExistsById({ client, id }: { client: MongoClient, id: string }): Promise<boolean> {
+  try {
+    const count = await client
+      .db()
+      .collection("fs.files")
+      .countDocuments({ _id: id });
 
+    return !!count;
+  } catch (error) {
+    console.error("Error checking file existence:", error);
+    throw error;
+  }
+}
