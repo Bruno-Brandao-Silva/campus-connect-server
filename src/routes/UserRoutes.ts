@@ -1,9 +1,10 @@
-import express from 'express';
+import { Router } from 'express';
 import UserController from '../controllers/UserController';
 import { authenticateToken } from '../middlewares/AuthMiddleware';
 
-const router = express.Router();
+const router = Router();
 
+router.post('/login', UserController.login);
 router.get('/', authenticateToken, UserController.getDataById);
 // router.get('/public/all', UserController.getPublicData);
 router.get('/public/:id', UserController.getPublicDataById);

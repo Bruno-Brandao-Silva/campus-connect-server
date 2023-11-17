@@ -1,7 +1,7 @@
-import express from 'express';
+import { Router } from 'express';
 import MessageController from '../controllers/MessageController';
 
-const router = express.Router();
+const router = Router();
 
 router.post('/', MessageController.sendMessage);
 

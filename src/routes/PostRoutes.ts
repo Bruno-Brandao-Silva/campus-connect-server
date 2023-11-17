@@ -1,8 +1,8 @@
-import express from 'express';
+import { Router } from 'express';
 import PostController from '../controllers/PostController';
 import {authenticateToken} from '../middlewares/AuthMiddleware';
 
-const router = express.Router();
+const router = Router();
 
 router.post('/', authenticateToken, PostController.createPost);
 router.get('/', PostController.getPosts);
