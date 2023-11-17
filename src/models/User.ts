@@ -23,21 +23,25 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	about: {
+		type: String,
+		required: false,
+	},
 	academicSchedule: {
 		type: [String],
-		required: false, // Opcional, dependendo dos requisitos
+		required: false,
 	},
 	profilePicture: {
 		type: Buffer,
-		required: false, // Opcional, dependendo dos requisitos
+		required: false,
 	},
 	entryYear: {
 		type: Number,
-		required: false, // Opcional, dependendo dos requisitos
+		required: false,
 	},
 	entryPeriod: {
 		type: Number,
-		required: false, // Opcional, dependendo dos requisitos
+		required: false,
 	}
 },
 	{ timestamps: true }
