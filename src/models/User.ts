@@ -13,13 +13,22 @@ const userSchema = new mongoose.Schema({
 		trim: true,
 		lowercase: true,
 	},
-	
+	academicRegistration: {
+		type: String,
+		unique: true,
+		required: true,
+		trim: true,
+	},
+	password: {
+		type: String,
+		required: true,
+	},
 	academicSchedule: {
 		type: [String],
 		required: false, // Opcional, dependendo dos requisitos
 	},
 	profilePicture: {
-		type: mongoose.Schema.Types.Mixed,
+		type: Buffer,
 		required: false, // Opcional, dependendo dos requisitos
 	},
 	entryYear: {
@@ -29,8 +38,10 @@ const userSchema = new mongoose.Schema({
 	entryPeriod: {
 		type: Number,
 		required: false, // Opcional, dependendo dos requisitos
-	},
-});
+	}
+},
+	{ timestamps: true }
+);
 
 const User = mongoose.models.User ?? mongoose.model('User', userSchema);
 
