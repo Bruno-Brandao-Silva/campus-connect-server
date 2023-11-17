@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { Server, Socket } from 'socket.io';
 import dotenv from 'dotenv';
 
+import authRoutes from './routes/AuthRoutes';
 import userRoutes from './routes/UserRoutes';
 import postRoutes from './routes/PostRoutes';
 import messageRoutes from './routes/MessageRoutes';
@@ -58,9 +59,15 @@ if (MONGODB_URI === undefined) throw new Error('MONGODB_URI is undefined');
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use('/api/user', userRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/file', fileRoutes);
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
 mongoose.connect(MONGODB_URI, {}).then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running on  http://localhost:${PORT}`);
