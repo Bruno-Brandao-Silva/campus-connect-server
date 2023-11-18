@@ -7,7 +7,7 @@ const PostController = {
   createPost: async (req: Request, res: Response) => {
     try {
       const { title, mediaId, context } = req.body;
-      const post = await Post.create({ title, mediaId, author: req.jwtToken, context });
+      const post = await Post.create({ title, mediaId, author: req.UserJwtPayload, context });
       res.status(201).json(post);
     } catch (error) {
       res.status(500).json({ message: 'Error creating post', error });
@@ -16,7 +16,7 @@ const PostController = {
 
   getMyPosts: async (req: Request, res: Response) => {
     try {
-      const posts = await Post.find({ author: req.jwtToken }).sort({ createdAt: -1 }).limit(10);
+      const posts = await Post.find({ author: req.UserJwtPayload }).sort({ createdAt: -1 }).limit(10);
 
       res.json(posts);
     } catch (error) {
@@ -25,7 +25,7 @@ const PostController = {
   },
   getPostsFromUserId: async (req: Request, res: Response) => {
     try {
-      const requestingUserId = req.jwtToken;
+      const requestingUserId = req.UserJwtPayload;
 
       const targetUserId = req.params.userId;
 
@@ -43,7 +43,7 @@ const PostController = {
   },
   likePost: async (req: Request, res: Response) => {
     const { postId } = req.params;
-    const { _id } = req.jwtToken;
+    const { _id } = req.UserJwtPayload;
 
     try {
       const post = await Post.findById(postId);
@@ -68,7 +68,7 @@ const PostController = {
 
   unlikePost: async (req: Request, res: Response) => {
     const { postId } = req.params;
-    const { _id } = req.jwtToken;
+    const { _id } = req.UserJwtPayload;
 
     try {
       const post = await Post.findById(postId);
@@ -92,7 +92,7 @@ const PostController = {
   },
   commentOnPost: async (req: Request, res: Response) => {
     const { postId } = req.params;
-    const { _id } = req.jwtToken;
+    const { _id } = req.UserJwtPayload;
     const { text } = req.body;
     try {
       const post = await Post.findById(postId);
@@ -108,7 +108,7 @@ const PostController = {
   deletePost: async (req: Request, res: Response) => {
     try {
       const { postId } = req.params;
-      const { _id } = req.jwtToken;
+      const { _id } = req.UserJwtPayload;
       const post = await Post.findById(postId);
       if (!post) return res.status(404).json({ message: 'Post not found' });
       if (post.author.toString() !== _id) return res.status(401).json({ message: 'You are not authorized to delete this post' });

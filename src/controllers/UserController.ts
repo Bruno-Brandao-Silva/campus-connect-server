@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import User from '../models/User';
 import axios from 'axios';
 import bcrypt from 'bcrypt';
-import { signToken } from '../middlewares/AuthMiddleware';
+import { SignAuth } from '../middlewares/AuthMiddleware';
 import mongoose from 'mongoose';
 
 const UTFPR_BASE_URI = process.env.UTFPR_BASE_URI!;
@@ -41,9 +41,7 @@ const UserController = {
 					entryPeriod: period,
 				});
 
-				const token = signToken(newUser._id);
-
-				res.cookie('CCS-AUTH-TOKEN', token);
+				const token = SignAuth(res, newUser._id);
 
 				return res.json({ statusText: "User registered successfully", token, firstAccess: true });
 			} else {
@@ -51,9 +49,7 @@ const UserController = {
 
 				if (!isPasswordValid) return res.status(401).json({ message: 'Invalid password' });
 
-				const token = signToken(user._id);
-
-				res.cookie('CCS-AUTH-TOKEN', token);
+				const token = await SignAuth(res, user._id);
 
 				return res.json({ statusText: "User already exists", token, firstAccess: false });
 			}
@@ -68,7 +64,7 @@ const UserController = {
 
 	get: async (req: Request, res: Response) => {
 		try {
-			const { _id } = req.jwtToken;
+			const { _id } = req.UserJwtPayload;
 			const user = await User.findById(_id).select('-password');
 			res.json(user);
 		} catch (error) {
@@ -80,7 +76,7 @@ const UserController = {
 
 	patch: async (req: Request, res: Response) => {
 		try {
-			const { _id } = req.jwtToken;
+			const { _id } = req.UserJwtPayload;
 			const updatedFields = req.body;
 			await User.findByIdAndUpdate(_id, updatedFields, { new: true });
 			res.status(200).json({ message: 'Profile edited successfully' });
@@ -92,7 +88,7 @@ const UserController = {
 
 	delete: async (req: Request, res: Response) => {
 		try {
-			const { _id } = req.jwtToken;
+			const { _id } = req.UserJwtPayload;
 			await User.findByIdAndDelete(_id);
 			res.json({ message: 'User deleted successfully' });
 		} catch (error) {
@@ -138,7 +134,7 @@ const UserController = {
 	},
 	follow: async (req: Request, res: Response) => {
 		try {
-			const { _id } = req.jwtToken!;
+			const { _id } = req.UserJwtPayload!;
 			const id = new mongoose.Schema.Types.ObjectId(req.params.id);
 
 			if (_id === id) {
@@ -163,7 +159,7 @@ const UserController = {
 	},
 	unfollow: async (req: Request, res: Response) => {
 		try {
-			const { _id } = req.jwtToken;
+			const { _id } = req.UserJwtPayload;
 			const id = new mongoose.Schema.Types.ObjectId(req.params.id);
 
 			if (_id === id) {
