@@ -1,7 +1,7 @@
 // file upload buckt with mongodb
 import { MongoClient, GridFSBucket, ObjectId } from "mongodb";
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://192.168.101.6:27017/CCS";
+const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
   throw new Error(
@@ -56,6 +56,20 @@ export async function FileExistsById({ client, id }: { client: MongoClient, id: 
     return !!count;
   } catch (error) {
     console.error("Error checking file existence:", error);
+    throw error;
+  }
+}
+
+export async function GetFileById({ client, _id }: { client: MongoClient, _id: ObjectId }) {
+  try {
+    const file = await client
+      .db()
+      .collection("fs.files")
+      .findOne({ _id });
+
+    return file;
+  } catch (error) {
+    console.error("Error getting file by id:", error);
     throw error;
   }
 }

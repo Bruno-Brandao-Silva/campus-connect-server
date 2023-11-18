@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ConnectToDb, FileExistsById } from '../models/File';
+import { ConnectToDb, FileExistsById, GetFileById } from '../models/File';
 import { Readable } from 'stream';
 import { ObjectId } from 'mongodb';
 
@@ -34,19 +34,37 @@ const FileController = {
 
     downloadById: async (req: Request, res: Response) => {
         try {
-            const id = new ObjectId(req.params.id);
-            const { bucket, client } = await ConnectToDb();
-            const existing = await FileExistsById({ client, id });
-            if (!existing) {
-                return res.status(404).end();
-            }
+            const range = req.headers.range || 'bytes=0-';
 
-            const downloadStream = bucket.openDownloadStream(new ObjectId(id));
+            const _id = new ObjectId(req.params.id);
+
+            const { bucket, client } = await ConnectToDb();
+
+            const file = await GetFileById({ client, _id });
+
+            if (!file) return res.status(404).end();
+
+            const streamStart = Number(range.replace(/\D/g, ""));
+            const streamEnd = file.length - 1;
+
+
+            const downloadStream = bucket.openDownloadStream(_id, { start: streamStart, end: file.length });
+
+            res.status(206).set({
+                "Content-Range": `bytes ${streamStart}-${streamEnd}/${file.length}`,
+                "Accept-Ranges": "bytes",
+                "Content-Length": (streamEnd - streamStart + 1).toString(),
+                "Content-Type": file.contentType || "application/octet-stream",
+                "Cache-Control": "public, max-age=31536000, immutable",
+            });
+
             downloadStream.pipe(res);
+            
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error downloading file' });
         }
+
     },
     deleteById: async (req: Request, res: Response) => {
         try {
