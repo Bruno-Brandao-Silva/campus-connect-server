@@ -17,7 +17,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
     if (error) {
       return res.status(403).json({ message: 'Access denied, invalid token' });
     }
-    req.userId = user;
+    req.jwtToken = user;
     next();
   });
 };
