@@ -6,8 +6,9 @@ import { ObjectId } from 'mongoose';
 const PostController = {
   createPost: async (req: Request, res: Response) => {
     try {
+      const { _id } = req.UserJwtPayload;
       const { title, mediaId, context } = req.body;
-      const post = await Post.create({ title, mediaId, author: req.UserJwtPayload, context });
+      const post = await Post.create({ title, mediaId, author: _id, context });
       res.status(201).json(post);
     } catch (error) {
       res.status(500).json({ message: 'Error creating post', error });
@@ -16,7 +17,8 @@ const PostController = {
 
   getMyPosts: async (req: Request, res: Response) => {
     try {
-      const posts = await Post.find({ author: req.UserJwtPayload }).sort({ createdAt: -1 }).limit(10);
+      const { _id } = req.UserJwtPayload;
+      const posts = await Post.find({ author: _id }).sort({ createdAt: -1 }).limit(10);
 
       res.json(posts);
     } catch (error) {
@@ -25,11 +27,11 @@ const PostController = {
   },
   getPostsFromUserId: async (req: Request, res: Response) => {
     try {
-      const requestingUserId = req.UserJwtPayload;
+      const { _id } = req.UserJwtPayload;
 
       const targetUserId = req.params.userId;
 
-      const isFollowing = await User.exists({ _id: requestingUserId, following: targetUserId });
+      const isFollowing = await User.exists({ _id, following: targetUserId });
 
       const searchCriteria = isFollowing ? { author: targetUserId } : { author: targetUserId, context: 'public' };
 
