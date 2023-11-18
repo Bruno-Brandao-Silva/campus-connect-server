@@ -37,7 +37,7 @@ export async function FileExistsByName({ client, filename }: { client: MongoClie
   }
 }
 
-export async function FileExistsById({ client, id }: { client: MongoClient, id: string }): Promise<boolean> {
+export async function FileExistsById({ client, id }: { client: MongoClient, id: ObjectId }): Promise<boolean> {
   try {
     let _id;
     try {
