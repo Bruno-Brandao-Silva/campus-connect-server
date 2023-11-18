@@ -2,19 +2,20 @@ import mongoose from 'mongoose';
 
 const postSchema = new mongoose.Schema({
   title: String,
-  mediaUrl: String,
+  mediaId: { type: mongoose.Schema.Types.ObjectId, ref: 'File' },
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  postDate: { type: Date, default: Date.now },
-  context: { type: String, enum: ['timeline', 'group'], required: true }, // Novo campo para contexto
-  contextId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' }, // ID do grupo (opcional)
+  context: { type: String, enum: ['public', 'private'], required: true },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [{
     commenter: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    text: String,
-    commentDate: { type: Date, default: Date.now },
-  }],
-});
+    text: String
+  },
+  { timestamps: true }
+  ],
+},
+  { timestamps: true }
+);
 
-const Post = mongoose.model('Post', postSchema);
+const Post = mongoose.models.Post ?? mongoose.model('Post', postSchema);
 
 export default Post;
