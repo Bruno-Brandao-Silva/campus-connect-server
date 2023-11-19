@@ -64,10 +64,6 @@ app.use('/api/post', postRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/file', fileRoutes);
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
-
 mongoose.connect(MONGODB_URI, {}).then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running on  http://localhost:${PORT}`);
