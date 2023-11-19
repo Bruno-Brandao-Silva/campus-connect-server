@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-	fullName: {
+	name: {
 		type: String,
 		required: true,
 		trim: true,
@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema({
 	username: {
 		type: String,
 		unique: true,
-		required: false,
 		trim: true,
 		lowercase: true,
 	},
@@ -25,23 +24,21 @@ const userSchema = new mongoose.Schema({
 	},
 	about: {
 		type: String,
-		required: false,
 	},
 	academicSchedule: {
 		type: [String],
-		required: false,
 	},
 	profilePicture: {
 		type: Buffer,
-		required: false,
+	},
+	showEntryBadge: {
+		type: Boolean,
 	},
 	entryYear: {
 		type: Number,
-		required: false,
 	},
 	entryPeriod: {
 		type: Number,
-		required: false,
 	},
 	following: [{
 		type: mongoose.Schema.Types.ObjectId,
@@ -51,7 +48,7 @@ const userSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
 	}],
-	
+
 },
 	{ timestamps: true }
 );

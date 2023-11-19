@@ -34,7 +34,7 @@ const UserController = {
 				const newUser = await User.create({
 					academicRegistration,
 					password: hashedPassword,
-					fullName: (userData.pessNomeVc as string).toProperCase(),
+					name: (userData.pessNomeVc as string).toProperCase(),
 					profilePicture: profileBuffer,
 					academicSchedule: userData.cursos.map((curso: any) => curso.cursNomeVc),
 					entryYear: year,
@@ -43,22 +43,22 @@ const UserController = {
 
 				const token = SignAuth(res, newUser._id);
 
-				return res.json({ statusText: "User registered successfully", token, firstAccess: true });
+				return res.json({ ...token, firstAccess: true });
 			} else {
 				const isPasswordValid = await bcrypt.compare(password, user.password);
 
-				if (!isPasswordValid) return res.status(401).json({ message: 'Invalid password' });
+				if (!isPasswordValid) return res.status(401).json({ error: 'Invalid password' });
 
 				const token = await SignAuth(res, user._id);
-
-				return res.json({ statusText: "User already exists", token, firstAccess: false });
+				const firstAccess = user.username ? false : true;
+				return res.json({ ...token, firstAccess });
 			}
 		} catch (error: any) {
 			if (error.response?.status === 401) {
-				return res.status(401).json({ message: 'Invalid credentials' });
+				return res.status(401).json({ error: 'Invalid credentials' });
 			}
 			console.error(error);
-			return res.status(error.response?.status || 500).json({ message: error.message });
+			return res.status(error.response?.status || 500).json({ error: error.message });
 		}
 	},
 
@@ -69,7 +69,7 @@ const UserController = {
 			res.json(user);
 		} catch (error) {
 			console.error(error);
-			res.status(500).json({ message: 'Error getting user data' });
+			res.status(500).json({ error: 'Error getting user data' });
 		}
 	},
 
@@ -82,7 +82,7 @@ const UserController = {
 			res.status(200).json({ message: 'Profile edited successfully' });
 		} catch (error) {
 			console.error(error);
-			res.status(500).json({ message: 'Error editing profile' });
+			res.status(500).json({ error: 'Error editing profile' });
 		}
 	},
 
@@ -93,7 +93,7 @@ const UserController = {
 			res.json({ message: 'User deleted successfully' });
 		} catch (error) {
 			console.error(error);
-			res.status(500).json({ message: 'Error deleting user' });
+			res.status(500).json({ error: 'Error deleting user' });
 		}
 	},
 	deleteTestes: async (req: Request, res: Response) => {
@@ -103,7 +103,7 @@ const UserController = {
 			res.json({ message: 'User deleted successfully' });
 		} catch (error) {
 			console.error(error);
-			res.status(500).json({ message: 'Error deleting user' });
+			res.status(500).json({ error: 'Error deleting user' });
 		}
 	},
 	search: async (req: Request, res: Response) => {
@@ -111,15 +111,15 @@ const UserController = {
 			const { query } = req.params;
 			const users = await User.find({
 				$or: [
-					{ fullName: { $regex: query as string, $options: 'i' } },
+					{ name: { $regex: query as string, $options: 'i' } },
 					{ username: { $regex: query as string, $options: 'i' } },
 					{ academicSchedule: { $regex: query as string, $options: 'i' } },
 				],
-			}).select('_id fullName username profilePicture');
+			}).select('_id name username profilePicture');
 			res.json(users);
 		} catch (error) {
 			console.error(error);
-			res.status(500).json({ message: 'Error searching users' });
+			res.status(500).json({ error: 'Error searching users' });
 		}
 	},
 	getById: async (req: Request, res: Response) => {
@@ -129,7 +129,7 @@ const UserController = {
 			res.json(user);
 		} catch (error) {
 			console.error(error);
-			res.status(500).json({ message: 'Error getting user data' });
+			res.status(500).json({ error: 'Error getting user data' });
 		}
 	},
 	follow: async (req: Request, res: Response) => {
@@ -138,12 +138,12 @@ const UserController = {
 			const id = new mongoose.Schema.Types.ObjectId(req.params.id);
 
 			if (_id === id) {
-				return res.status(400).json({ message: 'You cannot unfollow yourself' });
+				return res.status(400).json({ error: 'You cannot unfollow yourself' });
 			}
 
 			const user = await User.findById(_id);
 			if (user.following.includes(id)) {
-				return res.status(400).json({ message: 'You are already following this user' });
+				return res.status(400).json({ error: 'You are already following this user' });
 			}
 
 			user.following.push(id);
@@ -154,7 +154,7 @@ const UserController = {
 			res.status(200).json({ message: 'You are now following this user' });
 		} catch (error) {
 			console.error(error);
-			res.status(500).json({ message: 'Error following user' });
+			res.status(500).json({ error: 'Error following user' });
 		}
 	},
 	unfollow: async (req: Request, res: Response) => {
@@ -163,12 +163,12 @@ const UserController = {
 			const id = new mongoose.Schema.Types.ObjectId(req.params.id);
 
 			if (_id === id) {
-				return res.status(400).json({ message: 'You cannot unfollow yourself' });
+				return res.status(400).json({ error: 'You cannot unfollow yourself' });
 			}
 
 			const user = await User.findById(_id);
 			if (!user.following.includes(id)) {
-				return res.status(400).json({ message: 'You are not following this user' });
+				return res.status(400).json({ error: 'You are not following this user' });
 			}
 
 
@@ -180,7 +180,7 @@ const UserController = {
 			res.status(200).json({ message: 'You are not following this user anymore' });
 		} catch (error) {
 			console.error(error);
-			res.status(500).json({ message: 'Error unfollowing user' });
+			res.status(500).json({ error: 'Error unfollowing user' });
 		}
 	},
 };

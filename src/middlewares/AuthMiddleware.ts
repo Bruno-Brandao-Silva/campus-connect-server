@@ -15,7 +15,7 @@ export async function VerifyAuth(req: Request, res: Response, next: NextFunction
   const token = req.header("authorization")?.replace('Bearer ', '') || req.header("Authorization")?.replace('Bearer ', '') || req.cookies[TOKEN_KEY];
 
   if (!token) {
-    return res.status(401).json({ message: 'Access denied, missing token' });
+    return res.status(401).json({ error: 'Access denied, missing token' });
   }
   try {
     const verified = await jwtVerify(
@@ -26,7 +26,7 @@ export async function VerifyAuth(req: Request, res: Response, next: NextFunction
     next();
   } catch (err: any) {
     console.error(err)
-    return res.status(403).json({ message: 'Access denied, invalid token' });
+    return res.status(403).json({ error: 'Access denied, invalid token' });
   }
 }
 export async function SignAuth(res: Response, _id: string) {

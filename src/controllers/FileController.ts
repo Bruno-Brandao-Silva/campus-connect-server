@@ -28,7 +28,7 @@ const FileController = {
             res.status(201).json({ ...uploadedFileIds });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error uploading file' });
+            res.status(500).json({ error: 'Error uploading file' });
         }
     },
 
@@ -62,7 +62,7 @@ const FileController = {
             
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error downloading file' });
+            res.status(500).json({ error: 'Error downloading file' });
         }
 
     },
@@ -78,7 +78,7 @@ const FileController = {
             res.status(200).end();
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error deleting file' });
+            res.status(500).json({ error: 'Error deleting file' });
         }
     }
 };

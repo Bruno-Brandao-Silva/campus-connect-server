@@ -8,7 +8,7 @@ const MessageController = {
       const message = await Message.create({ content, senderId, recipientId });
       res.status(201).json(message);
     } catch (error) {
-      res.status(500).json({ message: 'Error sending message' });
+      res.status(500).json({ error: 'Error sending message' });
     }
   },
 };
