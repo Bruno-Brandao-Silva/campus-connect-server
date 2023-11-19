@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: backend-image
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/CCS
+      - UTFPR_BASE_URI=https://webapp.utfpr.edu.br/portalAluno/ws
+      - JWT_SECRET=secret
+    depends_on:
+      - mongodb
+    networks:
+      - ccs-network
+
+  mongodb:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - /tmp/mongo-data:/data/db
+    networks:
+      - ccs-network
+
+networks:
+  ccs-network:
+    driver: bridge
