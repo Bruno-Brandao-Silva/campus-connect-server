@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { Server, Socket } from 'socket.io';
 import dotenv from 'dotenv';
-
+import cors from 'cors';
 import authRoutes from './routes/AuthRoutes';
 import userRoutes from './routes/UserRoutes';
 import postRoutes from './routes/PostRoutes';
@@ -54,8 +54,7 @@ if (MONGODB_URI === undefined) throw new Error('MONGODB_URI is undefined');
 //   });
 // });
 
-// express area
-
+app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use('/api/user', userRoutes);
