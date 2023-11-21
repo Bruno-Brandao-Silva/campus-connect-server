@@ -41,7 +41,7 @@ const UserController = {
 					entryPeriod: period,
 				});
 
-				const token = SignAuth(res, newUser._id);
+				const token = await SignAuth(res, newUser._id);
 
 				return res.json({ ...token, firstAccess: true });
 			} else {

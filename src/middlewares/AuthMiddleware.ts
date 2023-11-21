@@ -37,6 +37,6 @@ export async function SignAuth(res: Response, _id: string) {
     .setIssuedAt()
     .setExpirationTime(newDate)
     .sign(new TextEncoder().encode(JWT_SECRET))
-  res.cookie(TOKEN_KEY, token, { httpOnly: true, secure: true, expires: newDate });
+  res.cookie(TOKEN_KEY, token, { httpOnly: true, secure: false, expires: newDate });
   return { TOKEN_KEY, token, expires: newDate }
 }
