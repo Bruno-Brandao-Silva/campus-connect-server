@@ -8,24 +8,20 @@ const FileController = {
     handleUpload: async (req: Request, res: Response) => {
         try {
             const { bucket } = await ConnectToDb();
-            const files = req.files as Express.Multer.File[];
-            const uploadedFileIds: { [filename: string]: string } = {};
+            const File = req.file as Express.Multer.File;
 
-            for (const file of files) {
-                const { originalname, buffer, mimetype } = file;
+            const { originalname, buffer, mimetype } = File;
 
-                const filename = originalname.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+            const filename = originalname.replace(/[^a-z0-9]/gi, '-').toLowerCase();
 
-                const stream = Readable.from(buffer);
+            const stream = Readable.from(buffer);
 
-                const uploadStream = bucket.openUploadStream(filename, {
-                    contentType: mimetype,
-                });
-                stream.pipe(uploadStream);
+            const uploadStream = bucket.openUploadStream(filename, {
+                contentType: mimetype,
+            });
+            stream.pipe(uploadStream);
 
-                uploadedFileIds[originalname] = uploadStream.id.toString();
-            }
-            res.status(201).json({ ...uploadedFileIds });
+            res.status(201).json({ _id: uploadStream.id.toString() });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error uploading file' });
@@ -59,7 +55,7 @@ const FileController = {
             });
 
             downloadStream.pipe(res);
-            
+
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error downloading file' });
