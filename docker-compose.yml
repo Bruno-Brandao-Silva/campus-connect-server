@@ -12,7 +12,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/CCS
       - UTFPR_BASE_URI=https://webapp.utfpr.edu.br/portalAluno/ws
-      - JWT_SECRET=secret
+      - JWT_SECRET=$(openssl rand -hex 32)  # Generate a random 256-bit hex string
     depends_on:
       - mongodb
     networks:
@@ -20,6 +20,9 @@ services:
 
   mongodb:
     image: mongo:latest
+    command: 
+            - '--logpath'
+            - '/var/log/mongodb/mongod.log'
     restart: always
     ports:
       - "27017:27017"
