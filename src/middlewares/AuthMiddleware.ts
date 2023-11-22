@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { SignJWT, jwtVerify } from 'jose'
 import { nanoid } from 'nanoid'
 import dotenv from 'dotenv';
+import User from '../models/User';
 dotenv.config();
 
 const expiresIn = 1000 * 60 * 60
@@ -22,6 +23,11 @@ export async function VerifyAuth(req: Request, res: Response, next: NextFunction
       token,
       new TextEncoder().encode(JWT_SECRET)
     )
+    // check if user exists
+    const exists = await User.exists({ _id: verified.payload._id });
+    if (!exists) {
+      return res.status(401).json({ error: 'Access denied, invalid token' });
+    }
     req.UserJwtPayload = verified.payload as UserJwtPayload;
     next();
   } catch (err: any) {
