@@ -27,7 +27,8 @@ const PostController = {
           username: user.name,
           userAt: user.username,
           createdAt: post.createdAt,
-          universityPeriod: user.entryBadge,
+          showEntryBadge: user.showEntryBadge,
+          entryBadge: user.entryBadge,
           description: post.title,
           file: post.mediaId
         }

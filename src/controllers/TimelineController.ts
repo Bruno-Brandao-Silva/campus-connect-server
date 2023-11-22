@@ -27,7 +27,21 @@ const TimelineController = {
 
       if (!posts) return res.status(404).json({ error: 'Posts not found' });
 
-      res.json({ users, posts });
+      const postsWithAuthor = posts.map((post) => {
+        const localUser = users.find((user) => user._id === post.author);
+        return {
+          id: post._id,
+          avatar: localUser.profilePicture,
+          username: localUser.name,
+          userAt: localUser.username,
+          createdAt: post.createdAt,
+          showEntryBadge: localUser.showEntryBadge,
+          entryBadge: localUser.entryBadge,
+          description: post.title,
+          file: post.mediaId
+        }
+      })
+      res.json(postsWithAuthor);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Error fetching posts' });
