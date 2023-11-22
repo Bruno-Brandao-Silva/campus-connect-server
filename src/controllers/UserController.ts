@@ -4,20 +4,26 @@ import axios from 'axios';
 import bcrypt from 'bcrypt';
 import { SignAuth } from '../middlewares/AuthMiddleware';
 import mongoose from 'mongoose';
+import { ConnectToDb } from '../models/File';
+import { Readable } from 'stream';
 
 const UTFPR_BASE_URI = process.env.UTFPR_BASE_URI!;
 
 const UserController = {
 	login: async (req: Request, res: Response) => {
 		try {
-			const { academicRegistration, password } = req.body;
-			const user = await User.findOne({ academicRegistration });
+			const { login, password } = req.body;
+			const user = await User.findOne({ $or: [{ academicRegistration: login }, { username: login }] });
 
 			if (!user) {
-				const loginData = await axios.post(`${UTFPR_BASE_URI}/auth`, { username: academicRegistration, password })
+				if (!/^\d+$/.test(login)) {
+					return res.status(400).json({ error: 'Invalid academic registration' });
+				}
+
+				const loginData = await axios.post(`${UTFPR_BASE_URI}/auth`, { username: 'a' + login, password })
 					.then((res: any) => res.data)
 
-				const [userData, profilePicture, hashedPassword] = await Promise.all([
+				const [userData, profilePictureData, hashedPassword] = await Promise.all([
 					axios.get(`${UTFPR_BASE_URI}/dados`, { headers: { Authorization: `Bearer ${loginData.token}` } })
 						.then((res: any) => res.data),
 					axios.get(`${UTFPR_BASE_URI}/fotoCracha`, { headers: { Authorization: `Bearer ${loginData.token}` } })
@@ -25,20 +31,31 @@ const UserController = {
 					bcrypt.hash(password, 10)
 				]);
 
-				const profileBuffer = Buffer.from(profilePicture, 'base64');
+				const buffer = Buffer.from(profilePictureData, 'base64');
+				const mimetype = 'image/jpeg';
+				const { bucket } = await ConnectToDb();
 
-				const { year, period } = userData.cursos.reduce((prev: any, curr: any) => {
+				const filename = ("profilePicture" + userData.pessNomeVc + ".jpg").replace(/[^a-z0-9]/gi, '-').toLowerCase();
+
+				const stream = Readable.from(buffer);
+
+				const uploadStream = bucket.openUploadStream(filename, {
+					contentType: mimetype,
+				});
+				stream.pipe(uploadStream);
+				console.log(userData.cursos);
+				const { alCuAnoingNr: year, alCuPerAnoingNr: period } = userData.cursos.reduce((prev: any, curr: any) => {
 					return (prev.year > curr.alCuAnoingNr || (prev.year === curr.alCuAnoingNr && prev.period >= curr.alCuPerAnoingNr)) ? prev : curr;
 				}, {});
+				console.log(year, period);
 
 				const newUser = await User.create({
-					academicRegistration,
+					academicRegistration: login,
 					password: hashedPassword,
 					name: (userData.pessNomeVc as string).toProperCase(),
-					profilePicture: profileBuffer,
+					profilePicture: uploadStream.id,
 					academicSchedule: userData.cursos.map((curso: any) => curso.cursNomeVc),
-					entryYear: year,
-					entryPeriod: period,
+					entryBadge: `${year}.${period}`,
 				});
 
 				const token = await SignAuth(res, newUser._id);
@@ -115,7 +132,7 @@ const UserController = {
 					{ username: { $regex: query as string, $options: 'i' } },
 					{ academicSchedule: { $regex: query as string, $options: 'i' } },
 				],
-			}).select('_id name username profilePicture');
+			}).select('_id name username profilePicture').limit(10);
 			res.json(users);
 		} catch (error) {
 			console.error(error);
@@ -135,10 +152,10 @@ const UserController = {
 	follow: async (req: Request, res: Response) => {
 		try {
 			const { _id } = req.UserJwtPayload!;
-			const id = new mongoose.Schema.Types.ObjectId(req.params.id);
-
+			const id = req.params.id as unknown as mongoose.Schema.Types.ObjectId;
+			console.log(_id, id);
 			if (_id === id) {
-				return res.status(400).json({ error: 'You cannot unfollow yourself' });
+				return res.status(400).json({ error: 'You cannot follow yourself' });
 			}
 
 			const user = await User.findById(_id);

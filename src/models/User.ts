@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		unique: true,
 		trim: true,
-		lowercase: true,
 	},
 	academicRegistration: {
 		type: String,
@@ -29,16 +28,13 @@ const userSchema = new mongoose.Schema({
 		type: [String],
 	},
 	profilePicture: {
-		type: Buffer,
+		type: mongoose.Schema.Types.ObjectId,
 	},
 	showEntryBadge: {
 		type: Boolean,
 	},
-	entryYear: {
-		type: Number,
-	},
-	entryPeriod: {
-		type: Number,
+	entryBadge: {
+		type: String,
 	},
 	following: [{
 		type: mongoose.Schema.Types.ObjectId,
