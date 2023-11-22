@@ -10,6 +10,7 @@ import userRoutes from './routes/UserRoutes';
 import postRoutes from './routes/PostRoutes';
 import messageRoutes from './routes/MessageRoutes';
 import fileRoutes from './routes/FileRoutes';
+import timelineRoutes from './routes/TimelineRoutes';
 import mongoose from 'mongoose';
 import './utils';
 
@@ -62,6 +63,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/file', fileRoutes);
+app.use('/api/timeline', timelineRoutes);
 
 mongoose.connect(MONGODB_URI, {}).then(() => {
   app.listen(PORT, () => {
