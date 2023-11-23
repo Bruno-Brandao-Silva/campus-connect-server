@@ -50,7 +50,23 @@ const PostController = {
 
       const posts = await Post.find(searchCriteria).sort({ createdAt: -1 }).limit(10);
 
-      res.json(posts);
+      const targetUser = await User.findById(targetUserId);
+
+      const postsWithAuthor = posts.map((post) => {
+        return {
+          id: post._id,
+          avatar: targetUser.profilePicture,
+          username: targetUser.name,
+          userAt: targetUser.username,
+          createdAt: post.createdAt,
+          showEntryBadge: targetUser.showEntryBadge,
+          entryBadge: targetUser.entryBadge,
+          description: post.title,
+          file: post.mediaId
+        }
+      })
+
+      res.json(postsWithAuthor);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Error fetching posts' });

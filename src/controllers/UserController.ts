@@ -115,7 +115,7 @@ const UserController = {
 	},
 	deleteTestes: async (req: Request, res: Response) => {
 		try {
-			const id = new mongoose.Schema.Types.ObjectId(req.params.id);
+			const id = req.params.id as unknown as mongoose.Schema.Types.ObjectId;
 			await User.findByIdAndDelete(id);
 			res.json({ message: 'User deleted successfully' });
 		} catch (error) {
@@ -141,7 +141,7 @@ const UserController = {
 	},
 	getById: async (req: Request, res: Response) => {
 		try {
-			const id = new mongoose.Schema.Types.ObjectId(req.params.id);
+			const id = req.params.id as unknown as mongoose.Schema.Types.ObjectId;
 			const user = await User.findById(id).select('-password');
 			res.json(user);
 		} catch (error) {
@@ -177,7 +177,7 @@ const UserController = {
 	unfollow: async (req: Request, res: Response) => {
 		try {
 			const { _id } = req.UserJwtPayload;
-			const id = new mongoose.Schema.Types.ObjectId(req.params.id);
+			const id = req.params.id as unknown as mongoose.Schema.Types.ObjectId;
 
 			if (_id === id) {
 				return res.status(400).json({ error: 'You cannot unfollow yourself' });

@@ -3,7 +3,7 @@ import Post from '../models/Post';
 import User from '../models/User';
 
 const TimelineController = {
-    getTimeline: async (req: Request, res: Response) => {
+  getTimeline: async (req: Request, res: Response) => {
     try {
       const { _id } = req.UserJwtPayload;
       const user = await User.findById(_id);
@@ -28,7 +28,7 @@ const TimelineController = {
       if (!posts) return res.status(404).json({ error: 'Posts not found' });
 
       const postsWithAuthor = posts.map((post) => {
-        const localUser = users.find((user) => user._id === post.author);
+        const localUser = users.find((usr) => usr._id.toString() === post.author.toString());
         return {
           id: post._id,
           avatar: localUser.profilePicture,
