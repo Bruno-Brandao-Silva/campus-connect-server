@@ -1,6 +1,6 @@
-# Sua Aplicação
+# Campus Connect Server
 
-Bem-vindo à documentação da API da sua aplicação. Abaixo estão detalhes sobre as rotas disponíveis, os métodos HTTP permitidos e uma breve descrição do que cada rota realiza.
+Bem-vindo à documentação da API Campus Connect Server. Abaixo estão detalhes sobre as rotas disponíveis, os métodos HTTP permitidos e uma breve descrição do que cada rota realiza.
 
 ## Autenticação
 
